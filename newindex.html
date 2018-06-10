@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Favorite Movies</title>
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+   
+
+    <!-- Subjects will Get Dumped Dere -->
+    <div id="subject-view"></div>
+
+    <!-- Rendered Buttons will get Dumped Here  -->
+    <div id="buttons-view"></div>
+
+    <form id="subject-form">
+      <label for="subject-input">Add New Subject</label>
+      <input type="text" id="subject-input">
+      <br>
+
+      <!-- Button triggers new subject to be added -->
+      <input id="add-subject" type="submit" value="Add New Subject">
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      // Initial array of subjects
+      var subject = ["Bicycle", "Motobike", "Car", "Plane", "Train", "Truck"];
+
+      // displaySubjectInfo function re-renders the HTML to display the appropriate content
+      function displaySubjectInfo() {
+
+        var subject = $(this).attr("data-name");
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+    subject + "&api_key=dc6zaTOxFJmzC&limit=5";
+
+
+        // Creating an AJAX call for the specific movie button being clicked
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(response) {
+
+          // After data comes back from the request
+      
+        console.log(queryURL);
+
+     
+        // storing the data from the AJAX request in the results variable
+        var results = response.data;
+
+        // Looping through each result item
+        for (var i = 0; i < results.length; i++) {
+
+          // Creating and storing a div tag
+          var subjectDiv = $("<div>");
+
+          // Creating a paragraph tag with the result item's rating
+          var p = $("<p>").text("Rating: " + results[i].rating);
+
+          // Creating and storing an image tag
+          var subjectImage = $("<img>");
+          // Setting the src attribute of the image to a property pulled off the result item
+          subjectImage.attr("src", results[i].images.fixed_height.url);
+
+          // Appending the paragraph and image tag to the animalDiv
+          subjectDiv.append(p);
+          subjectDiv.append(subjectImage);
+
+          // Prependng the transportDiv to the HTML page in the "#gifs-appear-here" div
+          $("#gifs-appear-here").prepend(subjectDiv);
+        }
+        });
+
+      }
+
+      // Function for displaying subject data
+      function renderButtons() {
+
+        // Deleting the movies prior to adding new movies
+        // (this is necessary otherwise you will have repeat buttons)
+        $("#buttons-view").empty();
+
+        // Looping through the array of movies
+        for (var i = 0; i < subject.length; i++) {
+
+          // Then dynamicaly generating buttons for each movie in the array
+          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          var a = $("<button>");
+          // Adding a class of movie-btn to our button
+          a.addClass("subject-btn");
+          // Adding a data-attribute
+          a.attr("data-name", subject[i]);
+          // Providing the initial button text
+          a.text(subject[i]);
+          // Adding the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+
+      // This function handles events where a movie button is clicked
+      $("#add-subject").on("click", function(event) {
+        event.preventDefault();
+        // This line grabs the input from the textbox
+        var newSubject = $("#subject-input").val().trim();
+
+        // Adding movie from the textbox to our array
+        subject.push(newSubject);
+
+        // Calling renderButtons which handles the processing of our movie array
+        renderButtons();
+      });
+
+      // Adding a click event listener to all elements with a class of "movie-btn"
+      $(document).on("click", ".subject-btn", displaySubjectInfo);
+
+      // Calling the renderButtons function to display the intial buttons
+      renderButtons();
+    </script>
+  </div>
+</body>
+
+</html>
